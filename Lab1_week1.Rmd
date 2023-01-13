@@ -14,4 +14,21 @@ library(sf) #spatial data
 library(tmap) #visualize map data 
 ```
 
+```{r}
+sf_trees <- read_csv(here("data", "sf_trees", "sf_trees.csv"))
+#summary(sf_trees)
+#names(sf_trees)
+#sf_trees %>% group_by(legal_status) %>% summarize(tree_count = n())
+top_5_status <- sf_trees %>% 
+  group_by(legal_status) %>% 
+  summarize(tree_count = n()) %>%
+  slice_max(tree_count, n = 5) %>% #find the values of this variable that are the maximum and slice out the top 5 in this case 
+  arrange(-tree_count) #ascending order, or -tree_count would be decending order 
+  
+ggplot(data = top_5_status, aes(x = fct_reorder(legal_status, tree_count), y = tree_count)) + #reorder legal status by tree count 
+  geom_col() + 
+  labs(y = "Tree count", x = "Legal status") + 
+  coord_flip() + 
+  theme_minimal()
+```
 
