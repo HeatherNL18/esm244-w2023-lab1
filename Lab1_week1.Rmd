@@ -60,4 +60,45 @@ sf_trees_sep <- sf_trees %>%
 sf_trees_unite <- sf_trees %>% 
   unite("id_status", tree_id:species, sep = "_NEW_") # or could be tree_id, species, caretaker, etc
 ```
+### make some actual maps 
+
+```{r}
+blackwood_acacia_sf <- blackwood_acacia %>% 
+  drop_na(longitude, latitude) %>% 
+  st_as_sf(coords = c("longitude", "latitude")) #take spatial and temporal data to turn into a geometry feature 
+
+#now we need to set a coordinate system for this (could be like meters north and east or something) 
+st_crs(blackwood_acacia_sf) <- 4326 #indicates latitude and longitude coordinate reference system 
+
+ggplot(data = blackwood_acacia_sf) + 
+  geom_sf(color = "dark green") + 
+  theme_minimal()
+```
+
+### read in SF streets data 
+```{r}
+sf_map_sf <- read_sf(here("data", "sf_map", "tl_2017_06075_roads.shp")) %>% 
+  st_transform(4326)
+
+st_crs(sf_map_sf) #now need to transform lat and long 4326 to match with the 4269 below 
+```
+
+```{r}
+ggplot() + 
+  geom_sf(data = sf_map_sf, size = 0.1, color = "dark gray") +
+  geom_sf(data = blackwood_acacia_sf, color = "red", size = 0.5) +
+  theme_void() + 
+  labs(title = "Blackwood acacias in San Francisco") #san francisco map in simple feature format 
+```
+
+### interactive map 
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+tmap_mode('view')  
+
+tm_shape(blackwood_acacia_sf) + 
+  tm_dots() 
+ 
+```
 
